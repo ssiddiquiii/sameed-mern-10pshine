@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-import { pinoHttp } from "pino-http"; // Import the HTTP logger
-import logger from "./utils/logger.js"; // Import our custom logger
-import { errorHandler } from "./middlewares/error.middleware.js"; // Import error handler
+import { pinoHttp } from "pino-http";
+import logger from "./utils/logger.js";
+import { errorHandler } from "./middlewares/error.middleware.js"; 
 
 const app = express();
 
@@ -33,10 +33,11 @@ app.use(express.static("public"));
 
 // 3. Import Routes
 import userRouter from "./routes/user.route.js";
+import noteRouter from "./routes/note.route.js";
 
 // 4. Route Declaration
 app.use("/api/v1/users", userRouter);
-// app.use("/api/v1/notes", noteRouter);
+app.use("/api/v1/notes", noteRouter);
 
 // 5. Global Error Handler (MUST be the LAST middleware)
 app.use(errorHandler);
