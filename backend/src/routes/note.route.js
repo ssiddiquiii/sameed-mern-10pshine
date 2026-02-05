@@ -5,16 +5,17 @@ import {
   getAllNotes,
   deleteNote,
   updateNotePinned,
+  searchNotes,
 } from "../controllers/note.controller.js";
-import { authenticateToken } from "../utils/Jwt.js"; // Ensure this matches where you saved your middleware!
+import { authenticateToken } from "../utils/Jwt.js";
 
 const router = Router();
 
-// All Note Routes
-router.post("/add", authenticateToken, addNote);
-router.put("/edit/:noteId", authenticateToken, editNote);
-router.get("/get-all", authenticateToken, getAllNotes);
-router.delete("/delete/:noteId", authenticateToken, deleteNote);
+router.post("/add-note", authenticateToken, addNote); 
+router.put("/edit-note/:noteId", authenticateToken, editNote);
+router.get("/get-all-notes", authenticateToken, getAllNotes); 
+router.delete("/delete-note/:noteId", authenticateToken, deleteNote);
 router.put("/update-note-pinned/:noteId", authenticateToken, updateNotePinned);
+router.get("/search-notes", authenticateToken, searchNotes); 
 
 export default router;

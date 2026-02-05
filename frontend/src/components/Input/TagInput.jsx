@@ -15,7 +15,6 @@ const TagInput = ({ tags, setTags }) => {
     }
   };
 
-  // FIX 1: Functions moved OUTSIDE of addNewTag so they are accessible
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
       addNewTag();

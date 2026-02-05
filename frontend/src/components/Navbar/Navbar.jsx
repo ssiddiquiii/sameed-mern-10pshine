@@ -1,36 +1,52 @@
 import React, { useState } from "react";
-import Profileinfo from "../Cards/profileinfo";
+import ProfileInfo from "../Cards/Profileinfo";
 import { useNavigate } from "react-router-dom";
 import SearchBar from "../SearchBar/SearchBar";
 
-const Navbar = () => {
+const Navbar = ({ userInfo, onSearchNote, handleClearSearch }) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const navigate = useNavigate;
+  const navigate = useNavigate();
 
   const onLogout = () => {
+    localStorage.clear();
     navigate("/login");
   };
 
-  const handleSearch = () => {};
+  const handleSearch = () => {
+    if (searchQuery) {
+      onSearchNote(searchQuery);
+    }
+  };
 
   const onClearSearch = () => {
     setSearchQuery("");
+    handleClearSearch();
   };
 
   return (
-    <div className="bg-white flex item-center justify-between px-6 py-2 drop-shadow">
-      <h2 className="text-xl font-medium text-black py-2">Notes</h2>
+    <div className="bg-white flex items-center justify-between px-10 py-4 shadow-sm border-b border-slate-100 sticky top-0 z-50">
+      {/* Logo Text Styling */}
+      <h2 className="text-2xl font-bold text-slate-800 tracking-tight">
+        Notes<span className="text-blue-600">.</span>
+      </h2>
 
-      <SearchBar
-        value={searchQuery}
-        onChange={({ target }) => {
-          setSearchQuery(target.value);
-        }}
-        handleSearch={handleSearch}
-        onClearSearch={onClearSearch}
-      />
+      {userInfo && (
+        <>
+          <SearchBar
+            value={searchQuery}
+            onChange={({ target }) => {
+              setSearchQuery(target.value);
+              if (target.value === "") {
+                handleClearSearch();
+              }
+            }}
+            handleSearch={handleSearch}
+            onClearSearch={onClearSearch}
+          />
 
-      <Profileinfo onLogout={onLogout} />
+          <ProfileInfo userInfo={userInfo} onLogout={onLogout} />
+        </>
+      )}
     </div>
   );
 };
