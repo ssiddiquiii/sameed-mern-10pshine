@@ -194,7 +194,6 @@ const Home = () => {
             justifyContent: "center",
           },
           content: {
-            top: "125px",
             width: "40%",
             inset: "auto",
             maxHeight: "90%",
@@ -204,6 +203,7 @@ const Home = () => {
             padding: "0",
             border: "none",
             overflow: "hidden",
+            marginTop: "60px"
           },
         }}
         contentLabel=""
