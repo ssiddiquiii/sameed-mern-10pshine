@@ -1,7 +1,8 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
+import crypto from "crypto";
+import bcrypt from "bcrypt"; 
 
-// Generate Tokens & Save Refresh Token to DB
 const generateAccessAndRefreshTokens = async (userId) => {
   try {
     const user = await User.findById(userId);
@@ -13,15 +14,13 @@ const generateAccessAndRefreshTokens = async (userId) => {
 
     return { accessToken, refreshToken };
   } catch (error) {
-    // 👇 THIS IS THE NEW PART
-    console.log("Detailed Error Log:", error); // <--- This will print the real reason in your terminal
+    console.log("Detailed Error Log:", error);
     throw new Error(
       "Something went wrong while generating refresh and access token"
     );
   }
 };
 
-// Register User
 const registerUser = asyncHandler(async (req, res) => {
   const { fullName, email, password } = req.body;
 
@@ -44,12 +43,10 @@ const registerUser = asyncHandler(async (req, res) => {
   );
 
   if (!createdUser) {
-    return res
-      .status(500)
-      .json({
-        error: true,
-        message: "Something went wrong while registering the user",
-      });
+    return res.status(500).json({
+      error: true,
+      message: "Something went wrong while registering the user",
+    });
   }
 
   return res.status(201).json({
@@ -59,7 +56,6 @@ const registerUser = asyncHandler(async (req, res) => {
   });
 });
 
-// Login User
 const loginUser = asyncHandler(async (req, res) => {
   const { email, password } = req.body;
 
@@ -87,7 +83,6 @@ const loginUser = asyncHandler(async (req, res) => {
     user._id
   );
 
-  // Security: Send tokens in HTTP-Only Cookies
   const options = {
     httpOnly: true,
     secure: true,
@@ -105,7 +100,6 @@ const loginUser = asyncHandler(async (req, res) => {
     });
 });
 
-// Get Current User
 const getUser = asyncHandler(async (req, res) => {
   const { user } = req;
   const isUser = await User.findOne({ _id: user._id });
@@ -124,5 +118,68 @@ const getUser = asyncHandler(async (req, res) => {
     message: "",
   });
 });
+
+export const forgotPassword = async (req, res) => {
+  const { email } = req.body;
+
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.json({ error: true, message: "User not found" });
+    }
+
+    const token = crypto.randomBytes(20).toString("hex");
+    user.resetPasswordToken = token;
+    user.resetPasswordExpires = Date.now() + 3600000;
+    await user.save({ validateBeforeSave: false }); // 👈 Validation skip karna zaroori hai yahan
+
+    const resetUrl = `http://localhost:5173/reset-password/${token}`;
+
+    console.log("\n================ RESET LINK ================");
+    console.log(resetUrl);
+    console.log("============================================\n");
+
+    return res.json({ error: false, message: "Link sent to console!" });
+  } catch (error) {
+    console.log("Forgot Pass Error:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
+  }
+};
+
+export const resetPassword = async (req, res) => {
+  const { token } = req.params;
+  const { newPassword } = req.body;
+
+  try {
+    const user = await User.findOne({
+      resetPasswordToken: token,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+
+    if (!user) {
+      return res
+        .status(400)
+        .json({ error: true, message: "Invalid or expired token" });
+    }
+
+    user.password = newPassword;
+
+    // reset token clear
+    user.resetPasswordToken = undefined;
+    user.resetPasswordExpires = undefined;
+
+    // save user
+    await user.save({ validateBeforeSave: false });
+
+    return res.json({ error: false, message: "Password reset successful!" });
+  } catch (error) {
+    console.log("Reset Pass Error:", error);
+    return res
+      .status(500)
+      .json({ error: true, message: "Internal Server Error" });
+  }
+};
 
 export { registerUser, loginUser, getUser };

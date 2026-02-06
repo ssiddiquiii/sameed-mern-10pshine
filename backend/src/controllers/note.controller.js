@@ -122,4 +122,44 @@ const updateNotePinned = asyncHandler(async (req, res) => {
   });
 });
 
-export { addNote, editNote, getAllNotes, deleteNote, updateNotePinned };
+// Search Notes
+const searchNotes = async (req, res) => {
+  const { user } = req;
+  const { query } = req.query;
+
+  if (!query) {
+    return res
+      .status(400)
+      .json({ error: true, message: "Search query is required" });
+  }
+
+  try {
+    const matchingNotes = await Note.find({
+      userId: user._id,
+      $or: [
+        { title: { $regex: new RegExp(query, "i") } }, // Case-insensitive search in Title
+        { content: { $regex: new RegExp(query, "i") } }, // Case-insensitive search in Content
+      ],
+    });
+
+    return res.json({
+      error: false,
+      notes: matchingNotes,
+      message: "Notes matching the search query retrieved successfully",
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: true,
+      message: "Internal Server Error",
+    });
+  }
+};
+
+export {
+  addNote,
+  editNote,
+  getAllNotes,
+  deleteNote,
+  updateNotePinned,
+  searchNotes,
+};
