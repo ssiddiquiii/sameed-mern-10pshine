@@ -19,6 +19,7 @@ app.use(
 app.use(
   pinoHttp({
     logger,
+    autoLogging: process.env.NODE_ENV !== "test",
     customLogLevel: function (req, res, err) {
       if (res.statusCode >= 400 && res.statusCode < 500) return "warn";
       if (res.statusCode >= 500 || err) return "error";
