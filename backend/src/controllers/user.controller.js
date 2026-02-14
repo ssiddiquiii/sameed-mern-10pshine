@@ -131,7 +131,7 @@ export const forgotPassword = async (req, res) => {
     const token = crypto.randomBytes(20).toString("hex");
     user.resetPasswordToken = token;
     user.resetPasswordExpires = Date.now() + 3600000;
-    await user.save({ validateBeforeSave: false }); // 👈 Validation skip karna zaroori hai yahan
+    await user.save({ validateBeforeSave: false });
 
     const resetUrl = `http://localhost:5173/reset-password/${token}`;
 

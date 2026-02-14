@@ -19,13 +19,13 @@ const noteSchema = new Schema(
       default: false,
     },
     userId: {
-      type: Schema.Types.ObjectId, // 🔗 Relation: Links to the User who created it
-      ref: "User", // Must match the name inside mongoose.model("User")
+      type: Schema.Types.ObjectId, 
+      ref: "User", 
       required: true,
     },
   },
   {
-    timestamps: true, // Auto-manages 'createdAt' and 'updatedAt'
+    timestamps: true,
   }
 );
 
